@@ -78,7 +78,7 @@ pub struct Apu {
                 0 => {
                     this.tri.len_count.enabled = val & (1 << 7) == 0;
                     this.tri.lin_count.enabled = val & (1 << 7) == 0;
-                    this.tri.lin_count.load = (val & 0x7f) as! u7;
+                    this.tri.lin_count.load = u7::from(val & 0x7f);
                 }
                 1 => {}
                 2 => this.tri.tmr.set_lo(val),
@@ -222,11 +222,11 @@ pub struct Apu {
 
         fn write(mut this, bus: *mut Bus, addr: u16, val: u8) {
             match addr {
-                0x4000..0x4004 => this.write_reg((addr - 0x4000) as! u2, :Pulse1, val),
-                0x4004..0x4008 => this.write_reg((addr - 0x4004) as! u2, :Pulse2, val),
-                0x4008..0x400c => this.write_reg((addr - 0x4008) as! u2, :Triangle, val),
-                0x400c..0x4010 => this.write_reg((addr - 0x400c) as! u2, :Noise, val),
-                0x4010..0x4014 => this.write_reg((addr - 0x4010) as! u2, :Dmc, val),
+                0x4000..0x4004 => this.write_reg(u2::from(addr - 0x4000), :Pulse1, val),
+                0x4004..0x4008 => this.write_reg(u2::from(addr - 0x4004), :Pulse2, val),
+                0x4008..0x400c => this.write_reg(u2::from(addr - 0x4008), :Triangle, val),
+                0x400c..0x4010 => this.write_reg(u2::from(addr - 0x400c), :Noise, val),
+                0x4010..0x4014 => this.write_reg(u2::from(addr - 0x4010), :Dmc, val),
                 0x4015 => this.write_status(bus, val),
                 0x4017 => this.write_frame_counter(val),
                 _ => {}
@@ -246,7 +246,7 @@ struct Envelope {
     pub fn load(mut this, val: u8) {
         this.loops = val & (1 << 5) != 0;
         this.enabled = val & (1 << 4) == 0;
-        this.constant_volume = (val & 0xf) as! u4;
+        this.constant_volume = u4::from(val & 0xf);
         // this.reset = true;
     }
 
@@ -305,9 +305,9 @@ struct Sweep {
 
     pub fn write(mut this, val: u8) {
         this.enabled = val & (1 << 7) != 0;
-        this.period = ((val >> 4) & 7) as! u3;
+        this.period = u3::from((val >> 4) & 7);
         this.negate = val & (1 << 3) != 0;
-        this.shift = (val & 0x7) as! u3;
+        this.shift = u3::from(val & 0x7);
         this.reset = true;
     }
 }
@@ -346,7 +346,7 @@ struct Pulse {
     muted: bool = false,
 
     pub fn write_reg1(mut this, val: u8) {
-        this.duty = (val >> 6) as! u2;
+        this.duty = u2::from(val >> 6);
         this.len_count.enabled = val & (1 << 5) == 0;
         this.envelope.load(val);
     }

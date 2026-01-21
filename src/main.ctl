@@ -1,6 +1,6 @@
 use sdl::*;
 use utils::*;
-use emu::{ipt::*, ppu, Nes, cart::Cart, apu::Channel};
+use emu::{ipt::{JoystickBtn, InputMode}, ppu, Nes, cart::Cart, apu::Channel};
 use std::time::Instant;
 
 fn read_bytes(path: str): ?[u8] {
@@ -8,7 +8,7 @@ fn read_bytes(path: str): ?[u8] {
     defer fp.close();
 
     fp.seek(:End(offset: 0));
-    let len = fp.tell() as! uint;
+    let len = uint::from(fp.tell());
     fp.seek(:Start(offset: 0));
     mut buf = @[0u8; len];
     if fp.read(buf[..]) != len {
@@ -90,7 +90,7 @@ fn main() {
     eprintln("vsync {vsync then "enabled" else "disabled"}");
     eprintln("mapper: {cart.mapper}");
     eprintln("has battery: {cart.has_battery}");
-    eprintln("mirroring: {cart.mirroring as u8}");
+    eprintln("mirroring: {cart.mirroring:?}");
     eprintln("chr_rom: {cart.chr_rom.len():#x}");
     eprintln("prg_rom: {cart.prg_rom.len():#x}");
 
@@ -107,8 +107,8 @@ fn main() {
 
     guard Window::new(
         title: NAME,
-        width: ppu::HPIXELS as! u32,
-        height: ppu::VPIXELS as! u32,
+        width: ppu::HPIXELS.cast(),
+        height: ppu::VPIXELS.cast(),
         scale:,
         vsync:,
     ) is ?mut wnd else {

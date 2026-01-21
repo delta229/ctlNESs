@@ -36,7 +36,7 @@ packed struct Flags {
 
     pub fn into_u8(my this): u8 => unsafe std::mem::bit_cast(this);
 
-    pub fn as_u8_mut(mut this): *mut u8 => unsafe this as *mut u8;
+    pub fn as_u8_mut(mut this): *mut u8 => unsafe this as ^mut This as *mut u8;
 
     pub fn set_zn(mut this, val: u8) {
         this.negative = val & 0x80 != 0;
@@ -296,8 +296,8 @@ pub struct Cpu {
     }
 
     fn push_u16(mut this, src: u16) {
-        this.push((src >> 8) as! u8);
-        this.push((src & 0xff) as! u8);
+        this.push((src >> 8).cast());
+        this.push((src & 0xff).cast());
     }
 
     fn push_flags(mut this, kw interrupt: bool) {
@@ -396,7 +396,7 @@ pub struct Cpu {
 
         let res = lhs as u16 + rhs as u16 + carry as u16;
         this.p.carry = res > 0xff;
-        let res = (res & 0xff) as! u8;
+        let res = u8::from(res & 0xff);
         if overflow {
             this.p.overflow = (res ^ lhs) & (res ^ rhs) & (1 << 7) != 0;
         }

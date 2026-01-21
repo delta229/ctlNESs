@@ -54,11 +54,7 @@ pub union File {
     }
 
     pub fn seek(mut this, pos: SeekPos): c_int {
-        unsafe libc::fseek(this, pos.offset as! c_long, match pos {
-            SeekPos::Start => 0,
-            SeekPos::Current => 1,
-            SeekPos::End => 2,
-        })
+        unsafe libc::fseek(this, pos.offset.cast(), pos as c_int)
     }
 
     pub fn read(mut this, buf: [mut u8..]): uint {
@@ -69,7 +65,7 @@ pub union File {
         unsafe libc::fwrite(buf.as_raw().cast(), 1, buf.len(), this)
     }
 
-    pub fn tell(mut this): i64 => unsafe libc::ftell(this) as! i64;
+    pub fn tell(mut this): i64 => unsafe libc::ftell(this).cast();
 
     pub fn close(mut this): c_int => unsafe libc::fclose(this);
 }

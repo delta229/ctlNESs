@@ -12,6 +12,9 @@ pub union Mirroring {
 pub const HPIXELS: uint = 256;
 pub const VPIXELS: uint = 240;
 
+const HPIXELS_16: u16 = HPIXELS.cast();
+const VPIXELS_16: u16 = VPIXELS.cast();
+
 const SCANLINE_END_CYCLE: u16 = 340;
 
 packed struct Ctrl {
@@ -99,7 +102,7 @@ pub struct Ppu {
         match this.state {
             :PreRender => {
                 let rendering_on = this.mask.show_bg and this.mask.show_sprites;
-                if this.cycle == HPIXELS as! u16 + 2 and rendering_on {
+                if this.cycle == HPIXELS_16 + 2 and rendering_on {
                     this.v = (this.v & !0x41f) | (this.t & 0x41f);
                 } else if this.cycle is 281..=304 and rendering_on {
                     this.v = (this.v & !0x7be0) | (this.t & 0x7be0);
@@ -125,7 +128,7 @@ pub struct Ppu {
                 }
             }
             :VBlank => {
-                if this.cycle == 1 and this.scanline == VPIXELS as! u16 + 1 {
+                if this.cycle == 1 and this.scanline == VPIXELS_16 + 1 {
                     this.vblank = true;
                     if this.ctrl.nmi_enable {
                         *nmi = true;
@@ -152,7 +155,7 @@ pub struct Ppu {
     fn render(mut this, buf: [mut u32..]) {
         let show_bg = this.mask.show_bg;
         let show_spr = this.mask.show_sprites;
-        if (0u16..=HPIXELS as! u16).contains(&this.cycle) {
+        if (0u16..=HPIXELS_16).contains(&this.cycle) {
             mut [bg_color, spr_color] = [0u8; 2];
             mut [bg_opaque, spr_opaque] = [false, true];
             mut spr_foreground = false;
@@ -240,8 +243,8 @@ pub struct Ppu {
                 // eprintln("attempt to render bad palette index {idx}");
                 idx = 0;
             }
-            buf[x + y * HPIXELS as! u16] = PALETTE[idx].to_abgr32();
-        } else if this.cycle == HPIXELS as! u16 + 1 and show_bg {
+            buf[x + y * HPIXELS_16] = PALETTE[idx].to_abgr32();
+        } else if this.cycle == HPIXELS_16 + 1 and show_bg {
             if this.v & 0x7000 != 0x7000 { // if fine Y < 7
                 this.v += 0x1000;             // increment fine Y
             } else {
@@ -258,7 +261,7 @@ pub struct Ppu {
                 this.v = (this.v & !0x3e0) | (y << 5);
                 // put coarse Y back into m_dataAddress
             }
-        } else if this.cycle == HPIXELS as! u16 + 2 and show_bg and show_spr {
+        } else if this.cycle == HPIXELS_16 + 2 and show_bg and show_spr {
             this.v = (this.v & !0x41f) | (this.t & 0x41f);
         }
 
@@ -286,7 +289,7 @@ pub struct Ppu {
             this.cycle = 0;
         }
 
-        if this.scanline >= VPIXELS as! u16 {
+        if this.scanline >= VPIXELS_16 {
             this.state = :PostRender;
         }
     }
@@ -390,7 +393,7 @@ pub struct Ppu {
                 }
             }
             ..0x3fff => {
-                mut idx = (addr & 0x1f) as! u8;
+                mut idx = u8::from(addr & 0x1f);
                 if idx >= 0x10 and idx % 4 == 0 {
                     idx &= 0xf;
                 }
@@ -412,7 +415,7 @@ pub struct Ppu {
                 }
             }
             ..0x3fff => {
-                mut idx = (addr & 0x1f) as! u8;
+                mut idx = u8::from(addr & 0x1f);
                 if idx >= 0x10 and idx % 4 == 0 {
                     idx &= 0xf;
                 }
@@ -439,14 +442,14 @@ pub struct Ppu {
     }
 
     fn oam_bytes(this): [u8..] {
-        unsafe std::span::Span::new(
+        unsafe Span::new(
             this.oam.as_raw().cast(),
             this.oam.len() * std::mem::size_of::<Sprite>(),
         )
     }
 
     fn oam_bytes_mut(mut this): [mut u8..] {
-        unsafe std::span::SpanMut::new(
+        unsafe SpanMut::new(
             this.oam.as_raw_mut().cast(),
             this.oam.len() * std::mem::size_of::<Sprite>(),
         )

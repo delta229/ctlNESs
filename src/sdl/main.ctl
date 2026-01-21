@@ -1,5 +1,3 @@
-use std::span::SpanMut;
-
 pub use bindings::WindowEvent;
 
 use bindings::*;
@@ -103,9 +101,9 @@ pub struct Color {
 
     pub fn rgb32(val: u32): Color {
         Color(
-            r: ((val >> 16) & 0xff) as! u8,
-            g: ((val >> 8) & 0xff) as! u8,
-            b: (val & 0xff) as! u8,
+            r: ((val >> 16) & 0xff).cast(),
+            g: ((val >> 8) & 0xff).cast(),
+            b: (val & 0xff).cast(),
             a: 0xff,
         )
     }
@@ -127,9 +125,9 @@ pub struct Window {
             return null;
         }
 
-        let width = width as! c_int;
-        let height = height as! c_int;
-        let scale = scale as! c_int;
+        let width = c_int::from(width);
+        let height = c_int::from(height);
+        let scale = c_int::from(scale);
 
         guard unsafe SDL_CreateWindow(
             title.as_raw().cast(), // zero terminate
@@ -184,12 +182,12 @@ pub struct Window {
 
     pub fn draw_scaled(mut this, src: [u32..]): bool {
         mut dst: ^mut void;
-        mut pitch = 0ic;
+        mut pitch: c_int = 0;
         guard unsafe SDL_LockTexture(this.renderer.texture, null, &mut dst, &mut pitch) == 0 else {
             return false;
         }
 
-        let dst = unsafe SpanMut::new(dst.cast::<u32>(), (pitch / 4 * this.height) as! uint);
+        let dst = unsafe SpanMut::new(dst.cast::<u32>(), (pitch / 4 * this.height).cast());
         let min = dst.len().min(src.len());
         dst[..min] = src[..min];
 
@@ -242,16 +240,16 @@ pub struct Audio {
 
         let self = std::alloc::new(Audio(device: 0, buf: rb::RingBuffer::new(buf_size)));
         let spec = SDL_AudioSpec(
-            freq: sample_rate as! c_int,
+            freq: sample_rate.cast(),
             format: AUDIO_F32SYS,
             channels: 1,
-            samples: (buf_size / 2) as! u16,
+            samples: (buf_size / 2).cast(),
             silence: 0,
             size: 0,
-            user_data: self as ^mut void, // this might be a problem for the GC
+            user_data: self as ^mut Audio as ^mut void, // this might be a problem for the GC
             callback: ?|| (user_data, samples, len) {
                 let self = unsafe user_data! as *Audio;
-                let samples = unsafe SpanMut::new(samples.cast::<f32>(), len as! uint / 4);
+                let samples = unsafe SpanMut::new(samples.cast::<f32>(), (len / 4).cast());
                 for sample in samples.iter_mut() {
                     *sample = self.buf.pop() ?? 0.0;
                 }
@@ -302,7 +300,7 @@ struct Renderer {
     }
 
     pub fn draw_point(mut this, x: i32, y: i32) {
-        unsafe SDL_RenderDrawPoint(this.renderer, x as! c_int, y as! c_int);
+        unsafe SDL_RenderDrawPoint(this.renderer, x.cast(), y.cast());
     }
 
     pub fn clear(mut this, color: Color) {
