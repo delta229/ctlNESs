@@ -1,4 +1,4 @@
-pub extension ReadExt for [u8..] {
+extension [u8..] {
     pub fn read_exact(mut this, n: uint): ?[u8..] {
         if this.len() >= n {
             let result = this[..n];

@@ -181,7 +181,7 @@ pub struct Window {
     }
 
     pub fn draw_scaled(mut this, src: [u32..]): bool {
-        mut dst: ^mut void;
+        mut dst: ^mut void = &mut {};
         mut pitch: c_int = 0;
         guard unsafe SDL_LockTexture(this.renderer.texture, null, &mut dst, &mut pitch) == 0 else {
             return false;
@@ -247,7 +247,7 @@ pub struct Audio {
             silence: 0,
             size: 0,
             user_data: self as ^mut Audio as ^mut void, // this might be a problem for the GC
-            callback: ?|| (user_data, samples, len) {
+            callback: ?|user_data, samples, len| {
                 let self = unsafe user_data! as *Audio;
                 let samples = unsafe SpanMut::new(samples.cast::<f32>(), (len / 4).cast());
                 for sample in samples.iter_mut() {
