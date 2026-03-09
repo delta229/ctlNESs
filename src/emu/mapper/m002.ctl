@@ -48,4 +48,26 @@ pub struct UxRom {
             this.bank = 0;
         }
     }
+
+    impl super::Persist {
+        fn save_state(this, buf: *mut super::StateBuf) {
+            buf.new_storage("UxRom", |=this, buf| {
+                if &this.chr_ram is ?chr_ram {
+                    buf.store_bits("chr_ram", chr_ram);
+                }
+
+                buf.store_bits("bank", &this.bank);
+            });
+        }
+
+        fn load_state(mut this, buf: *super::StateBuf) {
+            buf.get_storage("UxRom", |=this, buf| {
+                if &mut this.chr_ram is ?chr_ram {
+                    buf.load_bits("chr_ram", chr_ram);
+                }
+
+                buf.load_bits("bank", &mut this.bank);
+            });
+        }
+    }
 }

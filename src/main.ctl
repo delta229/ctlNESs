@@ -1,6 +1,6 @@
 use sdl::*;
 use utils::*;
-use emu::{ipt::{JoystickBtn, InputMode}, ppu, Nes, cart::Cart, apu::Channel};
+use emu::{ipt::{JoystickBtn, InputMode}, ppu, Nes, cart::Cart, apu::Channel, state::StateBuf};
 use std::time::Instant;
 
 fn read_bytes(path: str): ?[u8] {
@@ -128,14 +128,11 @@ fn main() {
     mut speed = 2.0;
     mut modify_speed = false;
     mut channels = [false; 5];
+    mut state = StateBuf::new();
     @outer: loop {
         fps_history[fpsi++ % fps_history.len()] = fps_clock.restart().as_secs();
         if nes_frame % 60 == 0 {
-            mut fps = 0.0;
-            for v in fps_history.iter() {
-                fps += *v;
-            }
-            fps /= fps_history.len() as f64;
+            let fps = fps_history.iter().fold(0.0, |acc, x| acc + *x) / fps_history.len() as f64;
             wnd.set_title("{NAME} ({(1.0 / fps * 100.0).floor() / 100.0} FPS)");
         }
 
@@ -194,6 +191,15 @@ fn main() {
                                     nes.input().mode = :AllowOpposing;
                                     println("set input mode to allow opposing");
                                 }
+                            }
+                        }
+                        :Space => {
+                            if event.modifiers & (0x40 | 0x80) != 0 {
+                                println("Saved state!");
+                                nes.save_state(&mut state);
+                            } else {
+                                println("Loaded state!");
+                                nes.load_state(&state);
                             }
                         }
                         _ => {}

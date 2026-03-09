@@ -1,4 +1,3 @@
-use ctlness::utils::ReadExt;
 pub use super::ppu::Mirroring;
 
 packed struct INesHeader {

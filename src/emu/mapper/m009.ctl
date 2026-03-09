@@ -56,4 +56,24 @@ pub struct Mmc2 {
             *this = Mmc2::new(this.cart);
         }
     }
+
+    impl super::Persist {
+        fn save_state(this, buf: *mut super::StateBuf) {
+            buf.new_storage("Mmc2", |=this, buf| {
+                buf.store_bits("mirroring", &this.mirroring);
+                buf.store_bits("prg_bank", &this.prg_bank);
+                buf.store_bits("chr_banks", &this.chr_banks);
+                buf.store_bits("latch", &this.mirroring);
+            });
+        }
+
+        fn load_state(mut this, buf: *super::StateBuf) {
+            buf.get_storage("Mmc2", |=this, buf| {
+                buf.load_bits("mirroring", &mut this.mirroring);
+                buf.load_bits("prg_bank", &mut this.prg_bank);
+                buf.load_bits("chr_banks", &mut this.chr_banks);
+                buf.load_bits("latch", &mut this.mirroring);
+            });
+        }
+    }
 }

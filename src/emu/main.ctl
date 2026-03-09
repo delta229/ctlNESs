@@ -70,4 +70,40 @@ pub struct Nes {
     pub fn toggle_channel_mute(mut this, channel: apu::Channel): bool {
         this.apu.toggle_channel_mute(channel)
     }
+
+    impl state::Persist {
+        fn save_state(this, buf: *mut state::StateBuf) {
+            this.cpu.save_state(buf);
+            this.bus.save_state(buf);
+            this.signals.save_state(buf);
+
+            buf.new_storage("Nes", |=this, buf| {
+                buf.store_bits("cycle", &this.cycle);
+                buf.store("video", this.video.as_byte_span());
+            });
+        }
+
+        fn load_state(mut this, buf: *state::StateBuf) {
+            this.cpu.load_state(buf);
+            this.bus.load_state(buf);
+            this.signals.load_state(buf);
+
+            buf.get_storage("Nes", |=this, buf| {
+                buf.load_bits("cycle", &mut this.cycle);
+                buf.load("video", this.video.as_byte_span());
+            });
+        }
+    }
+}
+
+extension<T> [T..] {
+    fn as_byte_span(this): [u8..] {
+        unsafe Span::new(this.as_raw().cast(), this.len() * std::mem::size_of::<T>())
+    }
+}
+
+extension<T> [mut T..] {
+    fn as_byte_span(this): [mut u8..] {
+        unsafe SpanMut::new(this.as_raw_mut().cast(), this.len() * std::mem::size_of::<T>())
+    }
 }

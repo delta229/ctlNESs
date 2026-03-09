@@ -153,4 +153,36 @@ pub struct Mmc3 {
             *this = Mmc3::new(this.cart, this.irq_pending);
         }
     }
+
+    impl super::Persist {
+        fn save_state(this, buf: *mut super::StateBuf) {
+            buf.new_storage("Mmc3", |=this, buf| {
+                buf.store_bits("ctrl", &this.ctrl);
+                buf.store_bits("bank_regs", &this.bank_regs);
+                buf.store_bits("irq_enabled", &this.irq_enabled);
+                buf.store_bits("irq_counter", &this.irq_counter);
+                buf.store_bits("irq_latch", &this.irq_latch);
+                buf.store_bits("irq_reload_pending", &this.irq_reload_pending);
+                buf.store_bits("mirroring_ram", &this.mirroring_ram);
+                buf.store_bits("prg_banks", &this.prg_banks);
+                buf.store_bits("chr_banks", &this.chr_banks);
+                buf.store_bits("mirroring", &this.mirroring);
+            });
+        }
+
+        fn load_state(mut this, buf: *super::StateBuf) {
+            buf.get_storage("Mmc3", |=this, buf| {
+                buf.load_bits("ctrl", &mut this.ctrl);
+                buf.load_bits("bank_regs", &mut this.bank_regs);
+                buf.load_bits("irq_enabled", &mut this.irq_enabled);
+                buf.load_bits("irq_counter", &mut this.irq_counter);
+                buf.load_bits("irq_latch", &mut this.irq_latch);
+                buf.load_bits("irq_reload_pending", &mut this.irq_reload_pending);
+                buf.load_bits("mirroring_ram", &mut this.mirroring_ram);
+                buf.load_bits("prg_banks", &mut this.prg_banks);
+                buf.load_bits("chr_banks", &mut this.chr_banks);
+                buf.load_bits("mirroring", &mut this.mirroring);
+            });
+        }
+    }
 }

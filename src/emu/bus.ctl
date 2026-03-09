@@ -1,6 +1,7 @@
 use std::range::{Range, RangeInclusive};
+use super::state::{Persist, StateBuf};
 
-pub trait Mem {
+pub trait Mem: Persist {
     fn peek(this, addr: u16): ?u8;
     fn read(mut this, addr: u16): ?u8 => this.peek(addr);
     fn write(mut this, bus: *mut Bus, addr: u16, val: u8);
@@ -68,6 +69,28 @@ pub struct Bus {
     pub fn peek_u16(this, addr: u16): u16 {
         (this.peek(addr.wrapping_add(1)) as u16 << 8) | this.peek(addr) as u16
     }
+
+    impl Persist {
+        fn save_state(this, buf: *mut StateBuf) {
+            for component in this.components.iter() {
+                component.save_state(buf);
+            }
+
+            buf.new_storage("Bus", |=this, buf| {
+                buf.store_bits("last_read", &this.last_read);
+            });
+        }
+
+        fn load_state(mut this, buf: *StateBuf) {
+            for component in this.components.iter_mut() {
+                component.load_state(buf);
+            }
+
+            buf.get_storage("Bus", |=this, buf| {
+                buf.load_bits("last_read", &mut this.last_read);
+            });
+        }
+    }
 }
 
 pub struct Ram {
@@ -93,6 +116,18 @@ pub struct Ram {
             if this.range.contains(&addr) {
                 this.buf[(addr - this.range.start) as uint % this.buf.len()] = val;
             }
+        }
+    }
+
+    fn persist_key(this): str => "Ram @ {this.range.start:#x}..={this.range.end:#x}".to_str();
+
+    impl Persist {
+        fn save_state(this, buf: *mut StateBuf) {
+            buf.new_storage(this.persist_key(), |=this, buf| => buf.store("data", this.buf));
+        }
+
+        fn load_state(mut this, buf: *StateBuf) {
+            buf.get_storage(this.persist_key(), |=this, buf| => _ = buf.load("data", this.buf));
         }
     }
 }

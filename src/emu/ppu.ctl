@@ -1,4 +1,5 @@
 use super::bus::*;
+use super::state::{Persist, StateBuf};
 use ctlness::sdl::Color;
 
 pub union Mirroring {
@@ -498,6 +499,58 @@ pub struct Ppu {
                 }
                 _ => {}
             }
+        }
+    }
+
+    impl Persist {
+        fn save_state(this, buf: *mut StateBuf) {
+            buf.new_storage("Ppu", |=this, buf| {
+                buf.store_bits("palette", &this.palette);
+                buf.store_bits("ram", &this.ram);
+                buf.store_bits("oam", &this.oam);
+                buf.store_bits("sprites", &this.sprites);
+                buf.store_bits("sprite_count", &this.sprite_count);
+                buf.store_bits("state", &this.state);
+                buf.store_bits("cycle", &this.cycle);
+                buf.store_bits("scanline", &this.scanline);
+                buf.store_bits("even_frame", &this.even_frame);
+                buf.store_bits("vblank", &this.vblank);
+                buf.store_bits("spr_zero_hit", &this.spr_zero_hit);
+                buf.store_bits("spr_overflow", &this.spr_overflow);
+                buf.store_bits("ctrl", &this.ctrl);
+                buf.store_bits("mask", &this.mask);
+                buf.store_bits("v", &this.v);
+                buf.store_bits("t", &this.t);
+                buf.store_bits("x", &this.x);
+                buf.store_bits("w", &this.w);
+                buf.store_bits("oam_addr", &this.oam_addr);
+                buf.store_bits("data_buf", &this.data_buf);
+            });
+        }
+
+        fn load_state(mut this, buf: *StateBuf) {
+            buf.get_storage("Ppu", |=this, buf| {
+                buf.load_bits("palette", &mut this.palette);
+                buf.load_bits("ram", &mut this.ram);
+                buf.load_bits("oam", &mut this.oam);
+                buf.load_bits("sprites", &mut this.sprites);
+                buf.load_bits("sprite_count", &mut this.sprite_count);
+                buf.load_bits("state", &mut this.state);
+                buf.load_bits("cycle", &mut this.cycle);
+                buf.load_bits("scanline", &mut this.scanline);
+                buf.load_bits("even_frame", &mut this.even_frame);
+                buf.load_bits("vblank", &mut this.vblank);
+                buf.load_bits("spr_zero_hit", &mut this.spr_zero_hit);
+                buf.load_bits("spr_overflow", &mut this.spr_overflow);
+                buf.load_bits("ctrl", &mut this.ctrl);
+                buf.load_bits("mask", &mut this.mask);
+                buf.load_bits("v", &mut this.v);
+                buf.load_bits("t", &mut this.t);
+                buf.load_bits("x", &mut this.x);
+                buf.load_bits("w", &mut this.w);
+                buf.load_bits("oam_addr", &mut this.oam_addr);
+                buf.load_bits("data_buf", &mut this.data_buf);
+            });
         }
     }
 }

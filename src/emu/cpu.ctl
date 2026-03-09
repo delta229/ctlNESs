@@ -1,4 +1,5 @@
 use super::bus::Bus;
+use super::state::{Persist, StateBuf};
 
 pub union Load { Imm, Zp, Zpx, Zpy, Abs, Abx, Aby, Izx, Izy }
 pub union Store { Zp, Zpx, Zpy, Abs, Abx, Aby, Izx, Izy }
@@ -61,6 +62,24 @@ pub struct Signals {
     pub irq_pending: bool = false,
     pub nmi_pending: bool = false,
     pub dma_flag: bool = false,
+
+    impl Persist {
+        fn save_state(this, buf: *mut StateBuf) {
+            buf.new_storage("Signals", |=this, buf| {
+                buf.store_bits("irq_pending", &this.irq_pending);
+                buf.store_bits("nmi_pending", &this.nmi_pending);
+                buf.store_bits("dma_flag", &this.dma_flag);
+            });
+        }
+
+        fn load_state(mut this, buf: *StateBuf) {
+            buf.get_storage("Signals", |=this, buf| {
+                buf.load_bits("irq_pending", &mut this.irq_pending);
+                buf.load_bits("nmi_pending", &mut this.nmi_pending);
+                buf.load_bits("dma_flag", &mut this.dma_flag);
+            });
+        }
+    }
 }
 
 pub struct Cpu {
@@ -263,6 +282,34 @@ pub struct Cpu {
         this.s -= 3;
         this.p.int_disable = true;
         this.signals.irq_pending = false;
+    }
+
+    impl Persist {
+        fn save_state(this, buf: *mut StateBuf) {
+            buf.new_storage("Cpu", |=this, buf| {
+                buf.store_bits("a", &this.a);
+                buf.store_bits("x", &this.x);
+                buf.store_bits("y", &this.y);
+                buf.store_bits("p", &this.p);
+                buf.store_bits("s", &this.s);
+                buf.store_bits("pc", &this.pc);
+                buf.store_bits("odd_cycle", &this.odd_cycle);
+                buf.store_bits("cycles", &this.cycles);
+            });
+        }
+
+        fn load_state(mut this, buf: *StateBuf) {
+            buf.get_storage("Cpu", |=this, buf| {
+                buf.load_bits("a", &mut this.a);
+                buf.load_bits("x", &mut this.x);
+                buf.load_bits("y", &mut this.y);
+                buf.load_bits("p", &mut this.p);
+                buf.load_bits("s", &mut this.s);
+                buf.load_bits("pc", &mut this.pc);
+                buf.load_bits("odd_cycle", &mut this.odd_cycle);
+                buf.load_bits("cycles", &mut this.cycles);
+            });
+        }
     }
 
     // ------------

@@ -1,4 +1,5 @@
 use super::bus::*;
+use super::state::{Persist, StateBuf};
 
 pub union Channel {
     Pulse1,
@@ -231,6 +232,37 @@ pub struct Apu {
                 0x4017 => this.write_frame_counter(val),
                 _ => {}
             }
+        }
+    }
+
+    impl Persist {
+        fn save_state(this, buf: *mut StateBuf) {
+            buf.new_storage("Apu", |=this, buf| {
+                buf.store_bits("cycles", &this.cycles);
+                buf.store_bits("seq_step", &this.seq_step);
+                buf.store_bits("irq_enabled", &this.irq_enabled);
+                buf.store_bits("five_step_mode", &this.five_step_mode);
+                // Storing the channels like this is questionable
+                buf.store_bits("pulse1", &this.pulse1);
+                buf.store_bits("pulse2", &this.pulse2);
+                buf.store_bits("tri", &this.tri);
+                buf.store_bits("noise", &this.noise);
+                buf.store_bits("dmc", &this.dmc);
+            });
+        }
+
+        fn load_state(mut this, buf: *StateBuf) {
+            buf.get_storage("Apu", |=this, buf| {
+                buf.load_bits("cycles", &mut this.cycles);
+                buf.load_bits("seq_step", &mut this.seq_step);
+                buf.load_bits("irq_enabled", &mut this.irq_enabled);
+                buf.load_bits("five_step_mode", &mut this.five_step_mode);
+                buf.load_bits("pulse1", &mut this.pulse1);
+                buf.load_bits("pulse2", &mut this.pulse2);
+                buf.load_bits("tri", &mut this.tri);
+                buf.load_bits("noise", &mut this.noise);
+                buf.load_bits("dmc", &mut this.dmc);
+            });
         }
     }
 }

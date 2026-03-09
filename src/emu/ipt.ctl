@@ -83,4 +83,9 @@ pub struct Input {
             }
         }
     }
+
+    impl super::state::Persist {
+        fn save_state(this, _buf: *mut super::state::StateBuf) { }
+        fn load_state(mut this, _buf: *super::state::StateBuf) { }
+    }
 }

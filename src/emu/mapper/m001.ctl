@@ -143,4 +143,44 @@ pub struct Mmc1 {
             *this = Mmc1::new(this.cart);
         }
     }
+
+    impl super::Persist {
+        fn save_state(this, buf: *mut super::StateBuf) {
+            buf.new_storage("Mmc1", |=this, buf| {
+                if &this.chr_ram is ?chr_ram {
+                    buf.store_bits("chr_ram", chr_ram);
+                }
+
+                buf.store_bits("write", &this.write);
+                buf.store_bits("d0", &this.d0);
+                buf.store_bits("ctrl", &this.ctrl);
+                buf.store_bits("prg", &this.prg);
+                buf.store_bits("chr0", &this.chr0);
+                buf.store_bits("chr1", &this.chr1);
+                buf.store_bits("chr_bank0", &this.chr_bank0);
+                buf.store_bits("chr_bank1", &this.chr_bank1);
+                buf.store_bits("prg_bank0", &this.prg_bank0);
+                buf.store_bits("prg_bank1", &this.prg_bank1);
+            });
+        }
+
+        fn load_state(mut this, buf: *super::StateBuf) {
+            buf.get_storage("Mmc1", |=this, buf| {
+                if &mut this.chr_ram is ?chr_ram {
+                    buf.load_bits("chr_ram", chr_ram);
+                }
+
+                buf.load_bits("write", &mut this.write);
+                buf.load_bits("d0", &mut this.d0);
+                buf.load_bits("ctrl", &mut this.ctrl);
+                buf.load_bits("prg", &mut this.prg);
+                buf.load_bits("chr0", &mut this.chr0);
+                buf.load_bits("chr1", &mut this.chr1);
+                buf.load_bits("chr_bank0", &mut this.chr_bank0);
+                buf.load_bits("chr_bank1", &mut this.chr_bank1);
+                buf.load_bits("prg_bank0", &mut this.prg_bank0);
+                buf.load_bits("prg_bank1", &mut this.prg_bank1);
+            });
+        }
+    }
 }
