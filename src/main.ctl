@@ -141,7 +141,7 @@ fn main() {
         while wnd.poll_event() is ?event {
             match event {
                 :Quit => break @outer,
-                :Window({event}) => {
+                :Window((event:)) => {
                     if event is :Close {
                         break @outer;
                     }

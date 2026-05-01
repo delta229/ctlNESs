@@ -188,7 +188,7 @@ pub struct Ppu {
 
             if show_spr and (this.mask.show_sprites_l8 or x >= 8) {
                 for i in this.sprites[..this.sprite_count].iter() {
-                    let {x: spr_x, y: spr_y, tile, attr} = this.oam[*i];
+                    let (x: spr_x, y: spr_y, tile:, attr:) = this.oam[*i];
                     let spr_x = spr_x as u16;
                     if x < spr_x or x - spr_x >= 8 {
                         continue;

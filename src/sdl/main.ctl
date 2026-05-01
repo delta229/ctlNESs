@@ -2,8 +2,8 @@ pub use bindings::WindowEvent;
 
 use bindings::*;
 
-pub union Scancode: u32 {
-    Unknown,
+pub union Scancode {
+    Unknown = 0u32,
     _Pad0,
     _Pad1,
     _Pad2,
@@ -295,7 +295,7 @@ struct Renderer {
         unsafe SDL_RenderSetVSync(this.renderer, enabled as c_int) == 0
     }
 
-    pub fn set_draw_color(mut this, {r, g, b, a}: Color) {
+    pub fn set_draw_color(mut this, (r:, g:, b:, a:): Color) {
         unsafe SDL_SetRenderDrawColor(this.renderer, r, g, b, a);
     }
 

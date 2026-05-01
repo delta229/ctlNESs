@@ -50,8 +50,8 @@ pub struct SDL_WindowEvent {
     pub data2: i32,
 }
 
-pub union WindowEvent: u8 {
-    None,
+pub union WindowEvent {
+    None = 0u8,
     Shown,
     Hidden,
     Exposed,
