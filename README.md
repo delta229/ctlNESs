@@ -1,6 +1,6 @@
-# ctlNESs
+# xtnes
 
-ctlNESs is a NES emulator written in [CTL](https://github.com/nw-github/ctl). It's primary purpose was to gauge the current state of the language from a usability standpoint with a medium sized project (and to cross "create an emulator" off my bucket list), rather than an attempt to make a featureful or accurate emulator.
+xtnes is a NES emulator written in [CTL](https://github.com/nw-github/ctl). It's primary purpose was to gauge the current state of the language from a usability standpoint with a medium sized project (and to cross "create an emulator" off my bucket list), rather than an attempt to make a featureful or accurate emulator.
 
 ## Examples
 
@@ -15,10 +15,10 @@ To compile the project, run the following command. You will need SDL2 and clang 
 ctl b -qr
 ```
 
-Then, run the resulting `ctlness` binary with the path to the desired rom
+Then, run the resulting `xtnes` binary with the path to the desired rom
 
 ```
-./build/ctlness "roms/Super Mario Bros.nes"
+./build/xtnes "roms/Super Mario Bros.nes"
 ```
 
 Alternatively, you can do both in one command

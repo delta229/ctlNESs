@@ -1,6 +1,6 @@
 use super::bus::*;
 use super::state::{Persist, StateBuf};
-use ctlness::sdl::Color;
+use xtnes::sdl::Color;
 
 pub union Mirroring {
     Horizontal,

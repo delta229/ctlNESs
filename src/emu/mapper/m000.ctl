@@ -1,4 +1,4 @@
-use ctlness::emu::cart::*;
+use xtnes::emu::cart::*;
 
 pub struct Nrom {
     cart: Cart,

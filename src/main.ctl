@@ -32,7 +32,7 @@ fn print_channels([a, b, t, n, d]: [bool; 5]) {
 }
 
 fn main() {
-    const NAME: str = "ctlNESs";
+    const NAME: str = "xtnes";
     const SAMPLE_RATE: uint = 48000;
 
     let keymap: [Scancode: JoystickBtn] = [

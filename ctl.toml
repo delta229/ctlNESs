@@ -1,6 +1,6 @@
 [package]
 root = "src"
-name = "ctlness"
+name = "xtnes"
 
 [link-libs]
 m = {}

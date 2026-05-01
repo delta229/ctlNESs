@@ -121,6 +121,8 @@ pub struct Cpu {
             return this.interrupt(typ);
         }
 
+        // println("{this}");
+
         match this.read() {
             0x00 => this.brk(),
             0x01 => this.arithmetic(Load::Izx, Operation::Or),
@@ -564,7 +566,7 @@ pub struct Cpu {
     // INC DEC
     fn inc_dec(mut this, kw dec: bool, typ: IncLoad) {
         let (addr, val) = this.inc_load_addr(typ);
-        let val = if dec { val.wrapping_sub(1) } else { val.wrapping_add(1) };
+        let val = dec then val.wrapping_sub(1) else val.wrapping_add(1);
         this.bus.write(addr, val);
         this.p.set_zn(val);
     }
@@ -573,7 +575,7 @@ pub struct Cpu {
     fn inc_dec_reg(mut this, reg: Reg, kw dec: bool) {
         this.cycles += 2;
         let reg = this.register(reg);
-        *reg = if dec { reg.wrapping_sub(1) } else { reg.wrapping_add(1) };
+        *reg = dec then reg.wrapping_sub(1) else reg.wrapping_add(1);
         this.p.set_zn(*reg);
     }
 

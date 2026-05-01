@@ -3,7 +3,7 @@ play CMD:
 
 dump:
     mkdir -p build
-    ctl p -vo build/ctlness.c
+    ctl p -vo build/xtnes.c
 
 sanitize ROM:
     ctl r -vpo2 --ccargs " -fsanitize=address -fPIE -pie" . -- -v "{{ROM}}"

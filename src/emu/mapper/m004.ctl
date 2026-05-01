@@ -1,4 +1,4 @@
-use ctlness::emu::cart::*;
+use xtnes::emu::cart::*;
 
 packed struct Control {
     target_reg: u3 = 0,
